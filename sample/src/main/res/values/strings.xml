@@ -1,4 +1,6 @@
 <resources>
-    <string name="app_name">QRVisionFragment</string>
+    <string name="app_name">QR Vision Fragment</string>
     <string name="request_code_extra_context">We need to access the camera to use it as a QR code scanner</string>
+    <string name="title_activity_main">Main Activity</string>
+    <string name="title_activity_main2">Main2Activity</string>
 </resources>

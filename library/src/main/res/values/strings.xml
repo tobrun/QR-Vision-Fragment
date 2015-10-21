@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="camera_error">Camera error</string>
+    <string name="camera_error_open">Can\'t connect to the camera</string>
+    <string name="camera_error_dependencies">Mobile Vision API dependencies are not available yet</string>
+    <string name="camera_error_low_storage">Mobile Vision API dependencies are not available due to low storage</string>
+    <string name="camera_error_dismiss">Dismiss</string>
+</resources>

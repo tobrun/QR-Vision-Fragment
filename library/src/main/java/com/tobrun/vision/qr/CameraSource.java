@@ -15,7 +15,6 @@
  */
 package com.tobrun.vision.qr;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -26,7 +25,6 @@ import android.hardware.Camera.CameraInfo;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresPermission;
 import android.support.annotation.StringDef;
 import android.util.Log;
 import android.view.Surface;
@@ -92,26 +90,28 @@ public class CameraSource {
     private static final float ASPECT_RATIO_TOLERANCE = 0.01f;
 
     @StringDef({
-        Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE,
-        Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO,
-        Camera.Parameters.FOCUS_MODE_AUTO,
-        Camera.Parameters.FOCUS_MODE_EDOF,
-        Camera.Parameters.FOCUS_MODE_FIXED,
-        Camera.Parameters.FOCUS_MODE_INFINITY,
-        Camera.Parameters.FOCUS_MODE_MACRO
+            Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE,
+            Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO,
+            Camera.Parameters.FOCUS_MODE_AUTO,
+            Camera.Parameters.FOCUS_MODE_EDOF,
+            Camera.Parameters.FOCUS_MODE_FIXED,
+            Camera.Parameters.FOCUS_MODE_INFINITY,
+            Camera.Parameters.FOCUS_MODE_MACRO
     })
     @Retention(RetentionPolicy.SOURCE)
-    private @interface FocusMode {}
+    private @interface FocusMode {
+    }
 
     @StringDef({
-        Camera.Parameters.FLASH_MODE_ON,
-        Camera.Parameters.FLASH_MODE_OFF,
-        Camera.Parameters.FLASH_MODE_AUTO,
-        Camera.Parameters.FLASH_MODE_RED_EYE,
-        Camera.Parameters.FLASH_MODE_TORCH
+            Camera.Parameters.FLASH_MODE_ON,
+            Camera.Parameters.FLASH_MODE_OFF,
+            Camera.Parameters.FLASH_MODE_AUTO,
+            Camera.Parameters.FLASH_MODE_RED_EYE,
+            Camera.Parameters.FLASH_MODE_TORCH
     })
     @Retention(RetentionPolicy.SOURCE)
-    private @interface FlashMode {}
+    private @interface FlashMode {
+    }
 
     private Context mContext;
 
@@ -327,46 +327,12 @@ public class CameraSource {
     }
 
     /**
-     * Opens the camera and starts sending preview frames to the underlying detector.  The preview
-     * frames are not displayed.
-     *
-     * @throws IOException if the camera's preview texture or display could not be initialized
-     */
-    @RequiresPermission(Manifest.permission.CAMERA)
-    public CameraSource start() throws IOException {
-        synchronized (mCameraLock) {
-            if (mCamera != null) {
-                return this;
-            }
-
-            mCamera = createCamera();
-
-            // SurfaceTexture was introduced in Honeycomb (11), so if we are running and
-            // old version of Android. fall back to use SurfaceView.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                mDummySurfaceTexture = new SurfaceTexture(DUMMY_TEXTURE_NAME);
-                mCamera.setPreviewTexture(mDummySurfaceTexture);
-            } else {
-                mDummySurfaceView = new SurfaceView(mContext);
-                mCamera.setPreviewDisplay(mDummySurfaceView.getHolder());
-            }
-            mCamera.startPreview();
-
-            mProcessingThread = new Thread(mFrameProcessor);
-            mFrameProcessor.setActive(true);
-            mProcessingThread.start();
-        }
-        return this;
-    }
-
-    /**
      * Opens the camera and starts sending preview frames to the underlying detector.  The supplied
      * surface holder is used for the preview so frames can be displayed to the user.
      *
      * @param surfaceHolder the surface holder to use for the preview frames
      * @throws IOException if the supplied surface holder could not be used as the preview display
      */
-    @RequiresPermission(Manifest.permission.CAMERA)
     public CameraSource start(SurfaceHolder surfaceHolder) throws IOException {
         synchronized (mCameraLock) {
             if (mCamera != null) {
@@ -779,8 +745,7 @@ public class CameraSource {
         mFocusMode = parameters.getFocusMode();
 
         if (mFlashMode != null) {
-            if (parameters.getSupportedFlashModes().contains(
-                    mFlashMode)) {
+            if (parameters.getSupportedFlashModes().contains(mFlashMode)) {
                 parameters.setFlashMode(mFlashMode);
             } else {
                 Log.i(TAG, "Camera flash mode: " + mFlashMode + " is not supported on this device.");
@@ -789,7 +754,6 @@ public class CameraSource {
 
         // setting mFlashMode to the one set in the params
         mFlashMode = parameters.getFlashMode();
-
         camera.setParameters(parameters);
 
         // Four frame buffers are needed for working with the camera:

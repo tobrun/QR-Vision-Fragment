@@ -1,12 +1,30 @@
+/*
+ * Copyright (C) Tobrun Van Nuland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.tobrun.vision.qr;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -21,7 +39,7 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 import java.io.IOException;
 
-public class QRScanFragment extends Fragment {
+public class QRScanFragment extends Fragment implements CameraSourcePreview.OnCameraErrorListener {
 
     private CameraSource mCameraSource;
     private CameraSourcePreview mPreview;
@@ -47,6 +65,7 @@ public class QRScanFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mPreview = (CameraSourcePreview) view.findViewById(R.id.preview);
+        mPreview.setOnCameraErrorListener(this);
         onCreateDetector(view);
     }
 
@@ -68,7 +87,14 @@ public class QRScanFragment extends Fragment {
         }).build());
 
         if (!barcodeDetector.isOperational()) {
-            mCallback.onCameraError();
+            IntentFilter lowStorageFilter = new IntentFilter(Intent.ACTION_DEVICE_STORAGE_LOW);
+            if (context.registerReceiver(null, lowStorageFilter) != null) {
+                // Low storage
+                mCallback.onCameraError(R.string.camera_error_low_storage);
+            } else {
+                // Native libs unavailable
+                mCallback.onCameraError(R.string.camera_error_dependencies);
+            }
             return;
         }
 
@@ -92,7 +118,6 @@ public class QRScanFragment extends Fragment {
                 }
 
                 mCameraSource = builder.build();
-
                 startCameraSource();
             }
         });
@@ -102,6 +127,17 @@ public class QRScanFragment extends Fragment {
     public void onResume() {
         super.onResume();
         startCameraSource();
+    }
+
+    private void startCameraSource() {
+        if (mCameraSource != null) {
+            try {
+                mPreview.start(mCameraSource);
+            } catch (IOException e) {
+                mCameraSource.release();
+                mCameraSource = null;
+            }
+        }
     }
 
     @Override
@@ -120,14 +156,10 @@ public class QRScanFragment extends Fragment {
         }
     }
 
-    private void startCameraSource() {
-        if (mCameraSource != null) {
-            try {
-                mPreview.start(mCameraSource);
-            } catch (IOException e) {
-                mCameraSource.release();
-                mCameraSource = null;
-            }
+    @Override
+    public void onCameraError() {
+        if (mCallback != null) {
+            mCallback.onCameraError(R.string.camera_error_open);
         }
     }
 
@@ -136,6 +168,6 @@ public class QRScanFragment extends Fragment {
         void onScanComplete(@NonNull final String qrCode);
 
         @UiThread
-        void onCameraError();
+        void onCameraError(@StringRes int errorTextRes);
     }
 }
