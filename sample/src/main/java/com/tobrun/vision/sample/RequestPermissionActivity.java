@@ -27,7 +27,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class RequestPermissionActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final int REQUEST_CODE_PERMISSION_CAMERA = 0x0000000;
 
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        int resultCode = ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA);
+        int resultCode = ActivityCompat.checkSelfPermission(RequestPermissionActivity.this, Manifest.permission.CAMERA);
         if (resultCode == PackageManager.PERMISSION_GRANTED) {
             navigateToScanActivity();
         } else {
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void navigateToScanActivity() {
-        startActivity(new Intent(this, ScanActivity.class));
+        startActivity(new Intent(this, ScanQRCodeActivity.class));
     }
 
     private void requestCameraPermission() {
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     .setAction(android.R.string.ok, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            ActivityCompat.requestPermissions(MainActivity.this,
+                            ActivityCompat.requestPermissions(RequestPermissionActivity.this,
                                     new String[]{Manifest.permission.CAMERA},
                                     REQUEST_CODE_PERMISSION_CAMERA);
                         }

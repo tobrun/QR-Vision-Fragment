@@ -25,7 +25,7 @@ import android.widget.Toast;
 
 import com.tobrun.vision.qr.QRScanFragment;
 
-public class ScanActivity extends AppCompatActivity implements QRScanFragment.OnScanCompleteListener {
+public class ScanQRCodeActivity extends AppCompatActivity implements QRScanFragment.OnScanCompleteListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
