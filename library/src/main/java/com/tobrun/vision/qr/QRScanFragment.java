@@ -123,6 +123,10 @@ public class QRScanFragment extends Fragment implements CameraSourcePreview.OnCa
         });
     }
 
+    public void restart() {
+        startCameraSource();
+    }
+
     @Override
     public void onResume() {
         super.onResume();
